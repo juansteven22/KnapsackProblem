@@ -111,15 +111,28 @@ public class KnapsackGUI extends JFrame {
             resultArea.setText("Error: " + e.getMessage());
         }
     }
-
-    private void nextStep() {
-        if (currentI <= n) {
-            if (currentW <= W) {
-                String stepDescription = "Fila " + currentI + ", Columna " + currentW + ":\n";
-                if (currentI == 0 || currentW == 0) {
-                    K[currentI][currentW] = 0;
-                    stepDescription += "Caso base: K[" + currentI + "][" + currentW + "] = 0\n";
-                } else if (wt[currentI - 1] <= currentW) {
+private void nextStep() {
+    if (currentI <= n) {
+        if (currentW <= W) {
+            String stepDescription = "Fila " + currentI + ", Columna " + currentW + ":\n";
+            stepDescription += "i = " + currentI + ", w = " + currentW + "\n";
+            
+            if (currentI == 0 || currentW == 0) {
+                K[currentI][currentW] = 0;
+                stepDescription += "Caso base: K[" + currentI + "][" + currentW + "] = 0\n";
+            } else {
+                stepDescription += "K[i][w] = " + K[currentI][currentW] + "\n";
+                stepDescription += "val[i - 1] = " + val[currentI - 1] + "\n";
+                stepDescription += "wt[i - 1] = " + wt[currentI - 1] + "\n";
+                if (currentW >= wt[currentI - 1]) {
+                    stepDescription += "K[i - 1][w - wt[i - 1]] = " + K[currentI - 1][currentW - wt[currentI - 1]] + "\n";
+                } else {
+                    stepDescription += "K[i - 1][w - wt[i - 1]] = N/A (item no cabe)\n";
+                }
+                
+                stepDescription += "K[i - 1][w] = " + K[currentI - 1][currentW] + "\n\n";
+                
+                if (wt[currentI - 1] <= currentW) {
                     int include = val[currentI - 1] + K[currentI - 1][currentW - wt[currentI - 1]];
                     int exclude = K[currentI - 1][currentW];
                     K[currentI][currentW] = Math.max(include, exclude);
@@ -132,22 +145,24 @@ public class KnapsackGUI extends JFrame {
                     stepDescription += "Item " + currentI + " (peso: " + wt[currentI - 1] + ") no cabe en la capacidad actual " + currentW + ".\n" +
                                        "K[" + currentI + "][" + currentW + "] = K[" + (currentI - 1) + "][" + currentW + "] = " + K[currentI][currentW] + "\n";
                 }
-                flowArea.append(stepDescription + "\n");
-                currentW++;
-            } else {
-                currentI++;
-                currentW = 0;
-            }
-            resultArea.setText(String.format("Procesando fila %d, columna %d", currentI, currentW));
-        } else {
-            nextStepButton.setEnabled(false);
-            resultArea.setText("Solución completa. El valor máximo es: " + K[n][W]);
-            flowArea.append("Solución encontrada: El valor máximo es " + K[n][W] + "\n");
-            reconstructSolution();
-        }
-        repaint();
-    }
+                stepDescription += "K[i][w] = " + K[currentI][currentW] + "\n";
 
+            }
+            flowArea.append(stepDescription + "\n");
+            currentW++;
+        } else {
+            currentI++;
+            currentW = 0;
+        }
+        resultArea.setText(String.format("Procesando fila %d, columna %d", currentI, currentW));
+    } else {
+        nextStepButton.setEnabled(false);
+        resultArea.setText("Solución completa. El valor máximo es: " + K[n][W]);
+        flowArea.append("Solución encontrada: El valor máximo es " + K[n][W] + "\n");
+        reconstructSolution();
+    }
+    repaint();
+}
     private void reconstructSolution() {
         StringBuilder solution = new StringBuilder("Items seleccionados:\n");
         int i = n, w = W;
